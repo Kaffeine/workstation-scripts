@@ -1,0 +1,16 @@
+#!/bin/sh
+
+do_cmd()
+{
+    echo "$@"
+    eval "$@"
+}
+
+case "$1" in
+    ""|help)
+        echo "Available commands:"
+        ;;
+    *)
+        echo "Unknown command"
+        ;;
+esac

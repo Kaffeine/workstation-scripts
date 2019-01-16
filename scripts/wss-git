@@ -1,14 +1,139 @@
 #!/bin/sh
 
+if [ x"$VERBOSE" = x"1" ]; then
+    set -x
+fi
+
+if [ x"$WSS_CONFIG_FILE" = "x" ]; then
+    WSS_CONFIG_FILE="$HOME/.config/wss.conf"
+fi
+
+if [ -f $WSS_CONFIG_FILE ]; then
+    echo "Read config file $WSS_CONFIG_FILE"
+    . $WSS_CONFIG_FILE
+else
+    echo "Unable to read config file. Run wss-configure before use."
+    exit 1
+fi
+
 do_cmd()
 {
     echo "$@"
     eval "$@"
 }
 
+git_config_name()
+{
+    if [ x"$1" = "x" ]; then
+        echo "Unable to configure user: name is not set"
+        exit 1
+    fi
+
+    do_cmd git config --replace-all --local user.name \"$1\"
+}
+
+git_config_email()
+{
+    if [ x"$1" = "x" ]; then
+        echo "Unable to configure user: e-mail is not set"
+        exit 1
+    fi
+
+    do_cmd git config --replace-all --local user.email \"$1\"
+}
+
+add_remote()
+{
+    DIR=`pwd`
+    PROJECT=`basename "$DIR"`
+    case "$1" in
+        gh)
+            git remote add "$1" "gh:$GITHUB_USER/$PROJECT.git"
+            ;;
+        kde)
+            git remote add "$1" "kde:$PROJECT.git"
+            ;;
+        merhome)
+            git remote add "$1" "mer:$MER_GIT_USER/$PROJECT.git"
+            ;;
+        mer-core)
+            git remote add "$1" "mer:mer-core/$PROJECT.git"
+            ;;
+        *)
+            echo "Unknown remote"
+            return 1
+            ;;
+    esac
+}
+
+set_user()
+{
+    case "$1" in
+        personal|local)
+            git_config_name "$PERSONAL_NAME"
+            git_config_email "$PERSONAL_MAIL"
+            ;;
+        corporate|work)
+            git_config_name "$CORPORATIVE_NAME"
+            git_config_email "$CORPORATIVE_MAIL"
+            ;;
+        *)
+            echo "Unknown user option. Available options:"
+            echo "  personal|local"
+            echo "  corporate|work"
+            ;;
+    esac
+}
+
+setup_config()
+{
+    if [ "$1" = "kde" ]; then
+        do_cmd git config --global url.git://anongit.kde.org/.insteadof kde:
+        do_cmd git config --global url.git@git.kde.org:.pushinsteadof kde:
+        return
+    fi
+
+    echo "--- Add command aliases ---"
+    do_cmd git config --global alias.co checkout
+    do_cmd git config --global alias.st status
+    do_cmd git config --global alias.cp cherry-pick
+    do_cmd git config --global alias.rcon '"rebase --continue"'
+
+    echo "--- Add host aliases ---"
+    do_cmd git config --global url.ssh://git@git.merproject.org:2222/.insteadof mer:
+    do_cmd git config --global url.https://github.com/.insteadof gh:
+    do_cmd git config --global url.git@github.com:.pushinsteadof gh:
+
+    echo "--- Enable extra options ---"
+    do_cmd git config --global help.autocorrect 1
+    do_cmd git config --global diff.indentheuristic true
+    do_cmd git config --global diff.algorithm histogram
+    do_cmd git config --global rebase.stat true
+
+    if [ "$1" = "with-unsafe" ]; then
+        echo "--- Enable unsafe options ---"
+        do_cmd git config --global rebase.autostash true
+        do_cmd git config --global rebase.autosquash true
+        do_cmd git config --global rerere.enabled true # reuse recorded resolutions
+        do_cmd git config --global push.followtags true # push annotated tags that are reachable from the refs being pushed
+    fi
+}
+
 case "$1" in
+    user)
+        set_user $2
+        ;;
+    remote)
+        add_remote $2
+        ;;
+    setup)
+        setup_config $2
+        ;;
     ""|help)
         echo "Available commands:"
+        echo "    remote"
+        echo "    setup [with-unsafe]"
+        echo "    user"
         ;;
     *)
         echo "Unknown command"

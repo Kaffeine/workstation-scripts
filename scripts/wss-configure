@@ -1,0 +1,70 @@
+#!/bin/sh
+
+if [ x"$VERBOSE" = x"1" ]; then
+    set -x
+fi
+
+if [ x"$WSS_CONFIG_FILE" = "x" ]; then
+    WSS_CONFIG_FILE="$HOME/.config/wss.conf"
+fi
+
+if [ -f $WSS_CONFIG_FILE ]; then
+    echo "Found config file $WSS_CONFIG_FILE"
+    . $WSS_CONFIG_FILE
+fi
+
+read_not_null()
+{
+    eval DEFAULT_VALUE=\${$1}
+    read -p "$2 [$DEFAULT_VALUE]: " RESULT
+
+    if [ x"$RESULT" = "x" ]; then
+        RESULT=$DEFAULT_VALUE
+    fi
+    eval "$1=\"$RESULT\""
+}
+
+write_config()
+{
+    echo "# Workstation scripts configuration file" > $WSS_CONFIG_FILE
+    echo "PERSONAL_NAME=\"$PERSONAL_NAME\"" >> $WSS_CONFIG_FILE
+    echo "PERSONAL_MAIL=\"$PERSONAL_MAIL\"" >> $WSS_CONFIG_FILE
+    echo "CORPORATIVE_NAME=\"$CORPORATIVE_NAME\"" >> $WSS_CONFIG_FILE
+    echo "CORPORATIVE_MAIL=\"$CORPORATIVE_MAIL\"" >> $WSS_CONFIG_FILE
+    echo "GITHUB_USER=\"$GITHUB_USER\"" >> $WSS_CONFIG_FILE
+}
+
+configure_personal()
+{
+    echo "--- Configure personal account"
+    read_not_null PERSONAL_NAME "Real name"
+    read_not_null PERSONAL_MAIL "E-mail"
+}
+
+configure_corporative()
+{
+    if [ x"$CORPORATIVE_NAME" = "x" ]; then
+        CORPORATIVE_NAME="$PERSONAL_NAME"
+    fi
+
+    echo "--- Configure corporative account"
+    read_not_null CORPORATIVE_NAME "Real name"
+    read_not_null CORPORATIVE_MAIL "E-mail"
+}
+
+configure_github()
+{
+    read -p "Configure github account [Y/n]?" yn
+    case "$yn" in
+        ""|[Yy]* ) break;;
+        * ) exit;;
+    esac
+
+    read_not_null GITHUB_USER "Github login"
+}
+
+configure_personal
+configure_corporative
+configure_github
+write_config
+exit

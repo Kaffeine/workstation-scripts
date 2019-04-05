@@ -14,4 +14,10 @@ cp -rf scripts $INSTALL_PATH/
 mkdir -p ~/.local/bin
 ln -s $INSTALL_PATH/scripts/* ~/.local/bin
 
-echo "Done."
+read -p "Done. Run configure [Y/n]? " yn
+case "$yn" in
+    ""|[Yy]* ) break;;
+    * ) exit;;
+esac
+
+"$INSTALL_PATH/scripts/wss-configure"

@@ -116,6 +116,10 @@ setup_config()
         do_cmd git config --global rebase.autosquash true
         do_cmd git config --global rerere.enabled true # reuse recorded resolutions
         do_cmd git config --global push.followtags true # push annotated tags that are reachable from the refs being pushed
+
+        # Enable recursion for relevant commands, such that
+        # regular commands recurse into submodules by default
+        do_cmd git config --global submodule.recurse true
     fi
 }
 

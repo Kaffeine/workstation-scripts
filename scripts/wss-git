@@ -16,6 +16,8 @@ else
     exit 1
 fi
 
+WSS_GIT_SCRIPT=$(readlink -f $0)
+
 do_cmd()
 {
     echo "$@"
@@ -85,6 +87,21 @@ set_user()
     esac
 }
 
+add_reviewed_by()
+{
+    GIT_EDITOR="$WSS_GIT_SCRIPT rb-impl" git commit --amend
+}
+
+add_reviewed_by_implementation()
+{
+    if [ x"$1" = "x" ]; then
+        echo "Unable to add Reviewed-by line: file is missing"
+        exit 1
+    fi
+
+    git interpret-trailers --trailer "Reviewed-by: $(git config user.name) <$(git config user.email)>" --in-place "$1"
+}
+
 setup_config()
 {
     if [ "$1" = "kde" ]; then
@@ -130,12 +147,19 @@ case "$1" in
     remote)
         add_remote $2
         ;;
+    rb)
+        add_reviewed_by
+        ;;
+    rb-impl)
+        add_reviewed_by_implementation $2
+        ;;
     setup)
         setup_config $2
         ;;
     ""|help)
         echo "Available commands:"
         echo "    remote"
+        echo "    rb                    Add Reviewed-by:"
         echo "    setup [with-unsafe]"
         echo "    user"
         ;;

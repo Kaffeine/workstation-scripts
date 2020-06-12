@@ -125,6 +125,7 @@ setup_config()
     do_cmd git config --global help.autocorrect 1
     do_cmd git config --global diff.indentheuristic true
     do_cmd git config --global diff.algorithm histogram
+    do_cmd git config --global diff.noprefix true
     do_cmd git config --global rebase.abbreviateCommands true
     do_cmd git config --global rebase.stat true
 

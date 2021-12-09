@@ -4,17 +4,36 @@ if [ x"$VERBOSE" = x"1" ]; then
     set -x
 fi
 
-if [ x"$WSS_CONFIG_FILE" = "x" ]; then
-    WSS_CONFIG_FILE="$HOME/.config/wss.conf"
+read_config()
+{
+    if [ x"$WSS_CONFIG_FILE" = "x" ]; then
+        WSS_CONFIG_FILE="$HOME/.config/wss.conf"
+    fi
+
+    if [ -f $WSS_CONFIG_FILE ]; then
+        echo "Read config file $WSS_CONFIG_FILE"
+        . $WSS_CONFIG_FILE
+    else
+        echo "Unable to read config file. Run wss-configure before use."
+        exit 1
+    fi
+}
+
+print_help()
+{
+    echo "Available commands:"
+    echo "    remote"
+    echo "    rb                    Add Reviewed-by:"
+    echo "    setup [with-unsafe]"
+    echo "    user"
+}
+
+if [ x"$1" = "xhelp" ] || [ x"$1" = "x" ]; then
+    print_help
+    exit 0
 fi
 
-if [ -f $WSS_CONFIG_FILE ]; then
-    echo "Read config file $WSS_CONFIG_FILE"
-    . $WSS_CONFIG_FILE
-else
-    echo "Unable to read config file. Run wss-configure before use."
-    exit 1
-fi
+read_config
 
 WSS_GIT_SCRIPT=$(readlink -f $0)
 
@@ -159,11 +178,7 @@ case "$1" in
         setup_config $2
         ;;
     ""|help)
-        echo "Available commands:"
-        echo "    remote"
-        echo "    rb                    Add Reviewed-by:"
-        echo "    setup [with-unsafe]"
-        echo "    user"
+        print_help
         ;;
     *)
         echo "Unknown command"

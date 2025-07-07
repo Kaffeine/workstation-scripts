@@ -141,7 +141,7 @@ setup_config()
 
         # Enable recursion for relevant commands, such that
         # regular commands recurse into submodules by default
-        do_cmd git config --global submodule.recurse true
+        # do_cmd git config --global submodule.recurse true
     fi
 }
 

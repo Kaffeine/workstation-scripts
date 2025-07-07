@@ -71,15 +71,6 @@ add_remote()
         gh)
             git remote add "$1" "gh:$GITHUB_USER/$PROJECT.git"
             ;;
-        kde)
-            git remote add "$1" "kde:$PROJECT.git"
-            ;;
-        merhome)
-            git remote add "$1" "mer:$MER_GIT_USER/$PROJECT.git"
-            ;;
-        mer-core)
-            git remote add "$1" "mer:mer-core/$PROJECT.git"
-            ;;
         *)
             echo "Unknown remote"
             return 1
@@ -123,12 +114,6 @@ add_reviewed_by_implementation()
 
 setup_config()
 {
-    if [ "$1" = "kde" ]; then
-        do_cmd git config --global url.git://anongit.kde.org/.insteadof kde:
-        do_cmd git config --global url.git@git.kde.org:.pushinsteadof kde:
-        return
-    fi
-
     echo "--- Add command aliases ---"
     do_cmd git config --global alias.co checkout
     do_cmd git config --global alias.st status
@@ -136,7 +121,6 @@ setup_config()
     do_cmd git config --global alias.rcon '"rebase --continue"'
 
     echo "--- Add host aliases ---"
-    do_cmd git config --global url.ssh://git@git.merproject.org:2222/.insteadof mer:
     do_cmd git config --global url.https://github.com/.insteadof gh:
     do_cmd git config --global url.git@github.com:.pushinsteadof gh:
 

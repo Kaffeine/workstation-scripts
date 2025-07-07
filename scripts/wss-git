@@ -116,28 +116,28 @@ setup_config()
 {
     echo "--- Add command aliases ---"
     do_cmd git config --global alias.co checkout
-    do_cmd git config --global alias.st status
     do_cmd git config --global alias.cp cherry-pick
     do_cmd git config --global alias.rcon '"rebase --continue"'
+    do_cmd git config --global alias.st status
 
     echo "--- Add host aliases ---"
     do_cmd git config --global url.https://github.com/.insteadof gh:
     do_cmd git config --global url.git@github.com:.pushinsteadof gh:
 
     echo "--- Enable extra options ---"
-    do_cmd git config --global help.autocorrect 1
-    do_cmd git config --global diff.indentheuristic true
     do_cmd git config --global diff.algorithm histogram
+    do_cmd git config --global diff.indentheuristic true
     do_cmd git config --global diff.noprefix true
+    do_cmd git config --global help.autocorrect 1
     do_cmd git config --global rebase.abbreviateCommands true
     do_cmd git config --global rebase.stat true
 
     if [ "$1" = "with-unsafe" ]; then
         echo "--- Enable unsafe options ---"
-        do_cmd git config --global rebase.autostash true
-        do_cmd git config --global rebase.autosquash true
-        do_cmd git config --global rerere.enabled true # reuse recorded resolutions
         do_cmd git config --global push.followtags true # push annotated tags that are reachable from the refs being pushed
+        do_cmd git config --global rebase.autosquash true
+        do_cmd git config --global rebase.autostash true
+        do_cmd git config --global rerere.enabled true # reuse recorded resolutions
 
         # Enable recursion for relevant commands, such that
         # regular commands recurse into submodules by default
